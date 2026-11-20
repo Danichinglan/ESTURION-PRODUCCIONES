@@ -1,45 +1,93 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
 <head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Esturión Producciones · Proyectos</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ESTURIÓN PRODUCCIONES · Proyectos</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
-:root{--bg:#f5f4f1;--card:#fff;--ink:#242424;--muted:#6b6b6b;--line:#dedbd4;--blue:#4285d4;--green:#83c29f;--amber:#d5a341;--red:#cc6262;--gray:#aaa;--purple:#5547d8}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;padding:22px 24px 45px}
-header{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;max-width:1500px;margin:0 auto 18px}h1{font-size:24px;margin:0;font-weight:850;letter-spacing:-.5px}header p{margin:5px 0;color:var(--muted);font-size:14px}.primary{border:0;border-radius:10px;background:var(--purple);color:#fff;padding:12px 17px;font-weight:700;cursor:pointer;font-size:14px}.primary:hover{filter:brightness(1.08)}
-.wrap{max-width:1500px;margin:auto}.filters{background:#fff;border:1px solid var(--line);border-radius:16px;padding:13px;display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:12px;margin-bottom:15px}.filter label{display:block;color:#777;font-size:12px;margin:0 0 5px}.filter input,.filter select{width:100%;padding:10px 12px;border:1px solid #ddd;border-radius:10px;background:#faf9f7;color:#333;font-size:14px}
-.legend{display:flex;flex-wrap:wrap;gap:12px;align-items:center;color:#686868;font-size:13px;margin:13px 4px 22px}.dot{display:inline-block;width:11px;height:11px;border-radius:50%;margin-right:5px;vertical-align:middle}.group-title{font-size:14px;font-weight:800;letter-spacing:1px;color:#777;margin:22px 0 10px;display:flex;align-items:center;gap:8px}.count{background:#e7e5e1;border-radius:15px;padding:2px 9px;color:#555;letter-spacing:0}
-.grid{display:grid;grid-template-columns:repeat(3,minmax(280px,1fr));gap:12px}.project{background:var(--card);border:1.5px solid var(--amber);border-radius:16px;padding:15px 15px 13px;box-shadow:0 1px 2px #00000006}.project.locked{border-color:#c9a24e}.project h2{font-size:18px;line-height:1.2;margin:0 0 5px;font-weight:800}.meta{font-size:13px;color:#707070;margin-bottom:13px}.phase{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:6px 0;font-size:14px}.status{border:0;border-radius:20px;color:#fff;min-width:105px;padding:6px 9px;font-weight:700;cursor:pointer;text-align:center;font-size:13px}.status.pendiente{background:#b9b9b9}.status.encurso{background:var(--blue)}.status.revision{background:var(--amber)}.status.hecho{background:var(--green)}.status.bloqueado{background:var(--red)}.status:disabled{cursor:not-allowed;opacity:.85}.budgetline{border-top:1px dashed #ddd;margin-top:10px;padding-top:9px;display:flex;align-items:center;justify-content:space-between;font-size:14px}.budgetline input[type=number]{max-width:125px;border:1px solid #ddd;border-radius:8px;padding:6px 8px;text-align:right;font-weight:700}.yesno{display:flex;gap:6px}.yesno button{border:0;border-radius:20px;padding:6px 15px;background:#bdbdbd;color:white;font-weight:700;cursor:pointer}.yesno button.selected.yes{background:var(--green)}.yesno button.selected.no{background:#aaa}.notes{margin-top:10px;padding-top:9px;border-top:1px solid #eee;font-size:13px;color:#555;white-space:pre-wrap}.actions{display:flex;gap:7px;margin-top:12px;flex-wrap:wrap}.smallbtn{background:#fff;border:1px solid #ddd;border-radius:9px;padding:7px 10px;font-size:12px;font-weight:700;cursor:pointer}.smallbtn:disabled{opacity:.4;cursor:not-allowed}.lockbtn{font-weight:800}.empty{padding:30px;text-align:center;color:#777}.modal{display:none;position:fixed;inset:0;background:#0006;align-items:center;justify-content:center;padding:20px;z-index:5}.modal.show{display:flex}.modalbox{width:min(500px,100%);background:white;border-radius:16px;padding:20px;box-shadow:0 15px 50px #0003}.modalbox h2{margin:0 0 15px}.modalbox label{display:block;font-size:13px;color:#666;margin:10px 0 5px}.modalbox input,.modalbox select,.modalbox textarea{width:100%;border:1px solid #ddd;border-radius:9px;padding:10px;font:inherit}.modal-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:16px}.secondary{background:white;border:1px solid #ddd;border-radius:9px;padding:10px 15px;cursor:pointer}.footerhint{font-size:12px;color:#888;margin-top:20px}
-@media(max-width:950px){.grid{grid-template-columns:repeat(2,minmax(250px,1fr))}.filters{grid-template-columns:repeat(2,1fr)}}@media(max-width:620px){body{padding:15px}.grid{grid-template-columns:1fr}.filters{grid-template-columns:1fr}header{align-items:center}h1{font-size:20px}}
-</style></head>
-<body><div class="wrap">
-<header><div><h1>🎬 ESTURIÓN PRODUCCIONES</h1><p>Gestión de proyectos audiovisuales · Estado compartido del equipo</p></div><button class="primary" onclick="openModal()">＋ Nuevo proyecto</button></header>
-<div class="filters">
-<div class="filter"><label>Agrupar por</label><select id="groupBy" onchange="render()"><option value="general">Estado general</option><option value="category">Categoría</option><option value="client">Cliente</option><option value="owner">Responsable</option></option></select></div>
-<div class="filter"><label>Fase a consultar</label><select id="phaseFilter" onchange="render()"><option value="all">— Todas —</option><option>Guion</option><option>Preproducción</option><option>Rodaje</option><option>Postproducción</option><option>Entrega</option></select></div>
-<div class="filter"><label>Estado de esa fase</label><select id="statusFilter" onchange="render()"><option value="all">— Todos —</option><option>Pendiente</option><option>En curso</option><option>En revisión</option><option>Hecho</option><option>Bloqueado</option></select></div>
-<div class="filter"><label>Buscar</label><input id="search" placeholder="Nombre, cliente..." oninput="render()"></div></div>
-<div class="legend"><span><i class="dot" style="background:#aaa"></i>Pendiente</span><span><i class="dot" style="background:#4285d4"></i>En curso</span><span><i class="dot" style="background:#d5a341"></i>En revisión</span><span><i class="dot" style="background:#83c29f"></i>Hecho</span><span><i class="dot" style="background:#cc6262"></i>Bloqueado</span><span>· Pulsa un estado para cambiarlo</span></div>
-<div id="projects"></div><p class="footerhint">Los cambios se guardan en este navegador. Para compartir los cambios en tiempo real entre todo el equipo, esta versión necesitaría conectarse a una base de datos online.</p>
+:root{font-family:Inter,system-ui,-apple-system,Segoe UI,sans-serif;color:#20252b;background:#f3f5f7}
+*{box-sizing:border-box}body{margin:0}header{background:#17232d;color:white;padding:22px max(18px,calc((100% - 1100px)/2));display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+h1{font-size:20px;letter-spacing:.08em;margin:0}header small{color:#c6d0d8}main{max-width:1100px;margin:28px auto;padding:0 16px}
+.panel,.project{background:white;border:1px solid #e1e6ea;border-radius:12px;padding:18px;margin-bottom:14px;box-shadow:0 2px 8px #17232d0a}
+input,select,button{font:inherit;border:1px solid #ccd4db;border-radius:8px;padding:10px;background:white;color:#20252b}
+button{cursor:pointer;background:#243746;color:white;border-color:#243746}button.secondary{background:white;color:#243746}button.danger{background:#fff;color:#a32929;border-color:#e6bcbc}
+button:disabled,input:disabled,select:disabled{opacity:.55;cursor:not-allowed}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}.row>*{flex:1;min-width:150px}.topline{display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px;margin-top:14px}
+label{display:block;font-size:12px;color:#687580;margin-bottom:5px}input,select{width:100%}
+.check{display:flex;align-items:center;gap:8px;margin-top:18px}.check input{width:auto}
+.meta{font-size:12px;color:#687580}.status{font-size:13px;margin:10px 0;color:#53616c}.locked{background:#f8f9fa}.project h3{margin:0;font-size:17px}.project .row{margin-top:12px}
+#login{max-width:420px;margin:8vh auto}#login h2{margin-top:0}.hidden{display:none!important}
+@media(max-width:600px){header{padding:18px}main{margin:16px auto}.panel,.project{padding:14px}}
+</style>
+</head>
+<body>
+<header><div><h1>ESTURIÓN PRODUCCIONES</h1><small>Gestión de proyectos audiovisuales</small></div><div id="account" class="hidden"><span id="userEmail"></span> <button id="logout" class="secondary">Cerrar sesión</button></div></header>
+<main>
+<section id="login" class="panel">
+<h2>Acceso privado</h2><p class="meta">Introduce tu correo y contraseña para acceder a los proyectos compartidos.</p>
+<form id="loginForm"><div style="margin:12px 0"><label>Correo electrónico</label><input id="email" type="email" required autocomplete="username"></div><div style="margin:12px 0"><label>Contraseña</label><input id="password" type="password" required autocomplete="current-password"></div><button type="submit">Entrar</button></form><p id="loginMsg" class="status"></p>
+</section>
+<section id="app" class="hidden">
+<div class="panel">
+<div class="topline"><div><strong>Proyectos</strong><div class="meta">Los cambios se sincronizan entre los usuarios conectados.</div></div><button id="newBtn">+ Nuevo proyecto</button></div>
+<div class="row" style="margin-top:14px"><input id="search" placeholder="Buscar por proyecto o cliente"><select id="filterPhase"><option value="">Todas las fases</option><option>Guion</option><option>Preproducción</option><option>Rodaje</option><option>Postproducción</option><option>Entrega</option></select><select id="filterCategory"><option value="">Todas las categorías</option><option>Evento</option><option>Corporativo</option><option>Publicidad</option><option>Documental</option><option>Ficción</option><option>Otros</option></select></div>
 </div>
-<div class="modal" id="modal"><div class="modalbox"><h2>Nuevo proyecto</h2><label>Nombre del proyecto</label><input id="newName" placeholder="Nombre del proyecto"><label>Cliente</label><input id="newClient" placeholder="Cliente / marca"><label>Categoría</label><select id="newCategory"><option>Corporativo</option><option>Publicidad</option><option>Evento</option><option>Documental</option><option>Ficción</option><option>Marketing</option><option>Otro</option></select><label>Responsable</label><input id="newOwner" placeholder="Nombre"><label>Descripción / notas</label><textarea id="newNotes" rows="3" placeholder="Detalles del encargo..."></textarea><div class="modal-actions"><button class="secondary" onclick="closeModal()">Cancelar</button><button class="primary" onclick="addProject()">Crear proyecto</button></div></div></div>
+<form id="newForm" class="panel hidden">
+<strong>Nuevo proyecto</strong><div class="grid">
+<div><label>Nombre del proyecto *</label><input id="newName" required></div>
+<div><label>Cliente</label><input id="newClient"></div>
+<div><label>Categoría</label><select id="newCategory"><option>Evento</option><option>Corporativo</option><option>Publicidad</option><option>Documental</option><option>Ficción</option><option>Otros</option></select></div>
+<div><label>Fase</label><select id="newPhase"><option>Guion</option><option>Preproducción</option><option>Rodaje</option><option>Postproducción</option><option>Entrega</option></select></div>
+<div><label>Presupuesto técnico (€)</label><input id="newBudget" type="number" min="0" step="0.01" value="0"></div>
+</div><div class="row" style="margin-top:14px"><button type="submit">Crear proyecto</button><button type="button" id="cancelNew" class="secondary">Cancelar</button></div><p id="newMsg" class="status"></p>
+</form>
+<p id="status" class="status"></p><div id="projects"></div>
+</section>
+</main>
 <script>
-const phases=['Guion','Preproducción','Rodaje','Postproducción','Entrega'];const statuses=['Pendiente','En curso','En revisión','Hecho','Bloqueado'];const statusClass={'Pendiente':'pendiente','En curso':'encurso','En revisión':'revision','Hecho':'hecho','Bloqueado':'bloqueado'};
-const starter=[{id:1,name:'Programa de Bienestar',client:'Mutualidad',category:'Corporativo',owner:'Dani',date:'11 nov 2026',phases:{Guion:'Hecho',Preproducción:'Hecho',Rodaje:'Hecho',Postproducción:'Hecho',Entrega:'Hecho'},budget:800,accepted:'Sí',paid:'Sí',notes:'Grabación y edición de 1 video con dos cierres distintos',locked:true},{id:2,name:'VWFS Alcalá de Henares',client:'VWFS',category:'Evento',owner:'Dani',date:'11 nov 2026',phases:{Guion:'Hecho',Preproducción:'Hecho',Rodaje:'Hecho',Postproducción:'Hecho',Entrega:'Hecho'},budget:900,accepted:'Sí',paid:'Sí',notes:'',locked:true},{id:3,name:'#TalComoSoy_ SUMO',client:'Mutualidad',category:'Corporativo',owner:'Dani',date:'',phases:{Guion:'Hecho',Preproducción:'Hecho',Rodaje:'Hecho',Postproducción:'En curso',Entrega:'Pendiente'},budget:1200,accepted:'Sí',paid:'Sí',notes:'Edición de un vídeo de 4’ máximo + edición de 2 vídeos de 40” máximo + edición de la reunión.',locked:true},{id:4,name:'FELICITACIÓN FERNANDO ARIZA',client:'Mutualidad',category:'Corporativo',owner:'Dani',date:'',phases:{Guion:'Hecho',Preproducción:'Hecho',Rodaje:'Hecho',Postproducción:'En curso',Entrega:'Pendiente'},budget:null,accepted:'No',paid:'No',notes:'',locked:true},{id:5,name:'MUTUALIDAD #TALCOMOSOY 05',client:'Mutualidad',category:'Corporativo',owner:'Dani',date:'',phases:{Guion:'Hecho',Preproducción:'Hecho',Rodaje:'Hecho',Postproducción:'En curso',Entrega:'Pendiente'},budget:1500,accepted:'Sí',paid:'Sí',notes:'Grabación y edición de 4 perfiles',locked:true}];
-let data;try{data=JSON.parse(localStorage.getItem('esturion_projects_v1'))||starter}catch(e){data=starter}if(!localStorage.getItem('esturion_projects_v1'))save();
-function save(){localStorage.setItem('esturion_projects_v1',JSON.stringify(data))}function openModal(){document.getElementById('modal').classList.add('show')}function closeModal(){document.getElementById('modal').classList.remove('show')}
-function addProject(){let name=document.getElementById('newName').value.trim();if(!name){alert('Introduce el nombre del proyecto');return}data.unshift({id:Date.now(),name,client:document.getElementById('newClient').value.trim(),category:document.getElementById('newCategory').value,owner:document.getElementById('newOwner').value.trim(),date:new Date().toLocaleDateString('es-ES',{day:'numeric',month:'short',year:'numeric'}),phases:Object.fromEntries(phases.map(p=>[p,'Pendiente'])),budget:null,accepted:'No',paid:'No',notes:document.getElementById('newNotes').value.trim(),locked:false});save();closeModal();['newName','newClient','newOwner','newNotes'].forEach(id=>document.getElementById(id).value='');render()}
-function cycleStatus(id,phase){let p=data.find(x=>x.id==id);if(p.locked)return;let s=p.phases[phase]||'Pendiente';p.phases[phase]=statuses[(statuses.indexOf(s)+1)%statuses.length];save();render()}
-function toggleLock(id){let p=data.find(x=>x.id==id);p.locked=!p.locked;save();render()}
-function setYN(id,key,val){let p=data.find(x=>x.id==id);if(p.locked)return;p[key]=val;save();render()}
-function setBudget(id,val){let p=data.find(x=>x.id==id);if(p.locked)return;p.budget=val===''?null:Number(val);save()}
-function editProject(id){let p=data.find(x=>x.id==id);if(p.locked)return;let note=prompt('Notas / descripción del proyecto',p.notes||'');if(note!==null){p.notes=note;save();render()}}
-function deleteProject(id){let p=data.find(x=>x.id==id);if(p.locked)return;if(confirm('¿Eliminar el proyecto «'+p.name+'»?')){data=data.filter(x=>x.id!=id);save();render()}}
-function general(p){let vals=phases.map(x=>p.phases[x]);if(vals.every(v=>v==='Hecho'))return 'COMPLETADO';if(vals.some(v=>v==='Bloqueado'))return 'BLOQUEADO';if(vals.some(v=>v==='En curso'||v==='En revisión'))return 'EN MARCHA';return 'PENDIENTE'}
-function groupLabel(p,group){if(group==='category')return p.category||'Sin categoría';if(group==='client')return p.client||'Sin cliente';if(group==='owner')return p.owner||'Sin responsable';return general(p)}
-function money(v){if(v==null||v==='')return '—';return Number(v).toLocaleString('es-ES',{style:'currency',currency:'EUR'})}
-function render(){let group=document.getElementById('groupBy').value,phaseF=document.getElementById('phaseFilter').value,statusF=document.getElementById('statusFilter').value,search=document.getElementById('search').value.toLowerCase();let filtered=data.filter(p=>{let matches=(p.name+' '+p.client+' '+p.category+' '+p.owner).toLowerCase().includes(search);let ph=phaseF==='all'||p.phases[phaseF]===statusF||statusF==='all';let st=statusF==='all'||(phaseF!=='all'&&p.phases[phaseF]===statusF)|| (phaseF==='all'&&Object.values(p.phases).includes(statusF));return matches&&ph&&st});let groups={};filtered.forEach(p=>{let g=groupLabel(p,group);(groups[g] ||= []).push(p)});let order=Object.keys(groups);if(group==='general'){let preferred=['COMPLETADO','EN MARCHA','PENDIENTE','BLOQUEADO'];order.sort((a,b)=>preferred.indexOf(a)-preferred.indexOf(b))}document.getElementById('projects').innerHTML=order.map(g=>`<div class="group-title">${g}<span class="count">${groups[g].length}</span></div><div class="grid">${groups[g].map(card).join('')}</div>`).join('')||'<div class="empty">No hay proyectos que coincidan con los filtros.</div>'}
-function card(p){let phaseHtml=phases.map(ph=>`<div class="phase"><span>${ph}</span><button class="status ${statusClass[p.phases[ph]||'Pendiente']}" ${p.locked?'disabled':''} onclick="cycleStatus(${p.id},'${ph}')">${p.phases[ph]||'Pendiente'}</button></div>`).join('');return `<article class="project ${p.locked?'locked':''}"><h2>${p.locked?'🔒':'🔓'} ${esc(p.name)}</h2><div class="meta">${esc(p.category||'Sin categoría')} · ${esc(p.client||'Sin cliente')} · 👤 ${esc(p.owner||'Sin responsable')} ${p.date?'· 📅 '+esc(p.date):''}</div>${phaseHtml}<div class="budgetline"><span>Presupuesto técnico</span><input type="number" min="0" step="0.01" value="${p.budget??''}" placeholder="€" ${p.locked?'disabled':''} onchange="setBudget(${p.id},this.value)" onblur="this.value='${p.budget??''}'"></div><div class="phase"><span>Presupuesto aceptado</span><div class="yesno"><button class="${p.accepted==='Sí'?'selected yes':''}" ${p.locked?'disabled':''} onclick="setYN(${p.id},'accepted','Sí')">Sí</button><button class="${p.accepted==='No'?'selected no':''}" ${p.locked?'disabled':''} onclick="setYN(${p.id},'accepted','No')">No</button></div></div><div class="phase"><span>Presupuesto pagado</span><div class="yesno"><button class="${p.paid==='Sí'?'selected yes':''}" ${p.locked?'disabled':''} onclick="setYN(${p.id},'paid','Sí')">Sí</button><button class="${p.paid==='No'?'selected no':''}" ${p.locked?'disabled':''} onclick="setYN(${p.id},'paid','No')">No</button></div></div>${p.notes?`<div class="notes">${esc(p.notes)}</div>`:''}<div class="actions"><button class="smallbtn lockbtn" onclick="toggleLock(${p.id})">${p.locked?'🔒 Desbloquear':'🔓 Bloquear proyecto'}</button><button class="smallbtn" ${p.locked?'disabled':''} onclick="editProject(${p.id})">Editar notas</button><button class="smallbtn" ${p.locked?'disabled':''} onclick="deleteProject(${p.id})">Eliminar</button></div></article>`}
-function esc(s){return String(s||'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','\'':'&#39;','"':'&quot;'}[c]))}
-render();
-</script></body></html>
+const SUPABASE_URL = "https://zaubqhnwixmvxcmbjivk.supabase.co";
+const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_J2EKbs99McLIXH06hUVTCA_tzeovCpb";
+const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+const $ = id => document.getElementById(id);
+let projects = [], channel = null;
+const phases = ["Guion","Preproducción","Rodaje","Postproducción","Entrega"];
+const categories = ["Evento","Corporativo","Publicidad","Documental","Ficción","Otros"];
+function esc(v){return String(v ?? "").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
+function options(values,current){return values.map(v=>`<option ${v===current?"selected":""}>${esc(v)}</option>`).join("");}
+function showApp(user){$("login").classList.add("hidden");$("app").classList.remove("hidden");$("account").classList.remove("hidden");$("userEmail").textContent=user.email;loadProjects();subscribe();}
+function showLogin(){$("app").classList.add("hidden");$("account").classList.add("hidden");$("login").classList.remove("hidden");}
+async function loadProjects(){const {data,error}=await db.from("proyectos").select("*").order("created_at",{ascending:false});if(error){$("status").textContent="Error al cargar proyectos: "+error.message;return;}projects=data||[];render();}
+function subscribe(){if(channel)return;channel=db.channel("proyectos-live").on("postgres_changes",{event:"*",schema:"public",table:"proyectos"},()=>loadProjects()).subscribe();}
+function render(){
+ const term=$("search").value.toLowerCase(), phase=$("filterPhase").value, cat=$("filterCategory").value;
+ const list=projects.filter(p=>(!term||(p.nombre+" "+(p.cliente||"")).toLowerCase().includes(term))&&(!phase||p.fase===phase)&&(!cat||p.categoria===cat));
+ $("status").textContent=list.length+" proyecto(s)";
+ $("projects").innerHTML=list.map(p=>`<article class="project ${p.bloqueado?"locked":""}" data-id="${p.id}">
+ <div class="topline"><div><h3>${esc(p.nombre)}</h3><div class="meta">${esc(p.cliente||"Sin cliente")} · ${esc(p.categoria||"Sin categoría")}</div></div><button class="secondary lock" data-id="${p.id}">${p.bloqueado?"🔒 Desbloquear":"🔓 Bloquear"}</button></div>
+ <div class="grid">
+ <div><label>Nombre del proyecto</label><input data-field="nombre" value="${esc(p.nombre)}" ${p.bloqueado?"disabled":""}></div>
+ <div><label>Cliente</label><input data-field="cliente" value="${esc(p.cliente||"")}" ${p.bloqueado?"disabled":""}></div>
+ <div><label>Categoría</label><select data-field="categoria" ${p.bloqueado?"disabled":""}>${options(categories,p.categoria||"Evento")}</select></div>
+ <div><label>Fase</label><select data-field="fase" ${p.bloqueado?"disabled":""}>${options(phases,p.fase||"Guion")}</select></div>
+ <div><label>Presupuesto técnico (€)</label><input data-field="presupuesto_tecnico" type="number" min="0" step="0.01" value="${Number(p.presupuesto_tecnico||0)}" ${p.bloqueado?"disabled":""}></div>
+ <div class="check"><input data-field="presupuesto_aceptado" type="checkbox" ${p.presupuesto_aceptado?"checked":""} ${p.bloqueado?"disabled":""}><label>Presupuesto aceptado</label></div>
+ <div class="check"><input data-field="presupuesto_pagado" type="checkbox" ${p.presupuesto_pagado?"checked":""} ${p.bloqueado?"disabled":""}><label>Presupuesto pagado</label></div>
+ </div><div class="row"><span class="meta">${p.bloqueado?"Proyecto bloqueado":"Proyecto editable"} · Los cambios se guardan automáticamente</span><button class="danger delete" data-id="${p.id}" ${p.bloqueado?"disabled":""}>Eliminar</button></div>
+ </article>`).join("")||'<div class="panel">No hay proyectos que coincidan con el filtro.</div>';
+}
+async function updateField(id,field,value){const {error}=await db.from("proyectos").update({[field]:value,updated_at:new Date().toISOString()}).eq("id",id);if(error)alert("No se pudo guardar: "+error.message);}
+$("loginForm").addEventListener("submit",async e=>{e.preventDefault();$("loginMsg").textContent="Comprobando acceso…";const {data,error}=await db.auth.signInWithPassword({email:$("email").value,password:$("password").value});if(error){$("loginMsg").textContent="No se pudo iniciar sesión: "+error.message;return;}showApp(data.user);});
+$("logout").onclick=async()=>{await db.auth.signOut();if(channel){db.removeChannel(channel);channel=null;}showLogin();};
+$("newBtn").onclick=()=>$("newForm").classList.remove("hidden");
+$("cancelNew").onclick=()=>$("newForm").classList.add("hidden");
+$("newForm").addEventListener("submit",async e=>{e.preventDefault();$("newMsg").textContent="Creando…";const row={nombre:$("newName").value.trim(),cliente:$("newClient").value.trim(),categoria:$("newCategory").value,fase:$("newPhase").value,presupuesto_tecnico:Number($("newBudget").value||0),presupuesto_aceptado:false,presupuesto_pagado:false,bloqueado:false};const {error}=await db.from("proyectos").insert(row);if(error){$("newMsg").textContent="Error: "+error.message;return;}$("newForm").reset();$("newForm").classList.add("hidden");$("newMsg").textContent="";await loadProjects();});
+$("projects").addEventListener("change",async e=>{const el=e.target.closest("[data-field]");if(!el)return;const card=el.closest("[data-id]");let value=el.type==="checkbox"?el.checked:el.value;if(el.dataset.field==="presupuesto_tecnico")value=Number(value||0);await updateField(card.dataset.id,el.dataset.field,value);});
+$("projects").addEventListener("click",async e=>{const lock=e.target.closest(".lock");if(lock){const p=projects.find(x=>x.id===lock.dataset.id);await updateField(p.id,"bloqueado",!p.bloqueado);await loadProjects();return;}const del=e.target.closest(".delete");if(del&&confirm("¿Eliminar este proyecto? Esta acción no se puede deshacer.")){const {error}=await db.from("proyectos").delete().eq("id",del.dataset.id);if(error)alert(error.message);await loadProjects();}});
+["search","filterPhase","filterCategory"].forEach(id=>$(id).addEventListener("input",render));
+db.auth.getSession().then(({data})=>{if(data.session)showApp(data.session.user);});
+db.auth.onAuthStateChange((_event,session)=>{if(session)showApp(session.user);else showLogin();});
+</script>
+</body>
+</html>
